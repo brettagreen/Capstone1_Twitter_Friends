@@ -1,0 +1,15 @@
+1. The goal of the website is to allow users to find new people to follow on Twitter. This will be achieved by using the Twitter API, and will allow users to add new followers directly from the website!
+2. The demographic is anyone who has a Twitter account and is interested in adding new Twitter users to follow.
+3. https://developer.twitter.com/en/docs/twitter-api Twitter API v.2. Emphasis on User, and Tweets related endpoints: https://developer.twitter.com/en/docs/twitter-api/users/lookup/introduction, https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/introduction, 
+4.
+  a. I’m not 100% sure yet, but I think it would consist of a USERS table. This table would include a field for a user’s oauth token. It would have an ACCOUNTS table, which would include accounts that users have begun to follow through using the app. It would also include a many-to-many USER_ACCOUNTS table. I’m not sure there would really be much more going on DB wise than this, but we’ll see.
+  
+  b. I could see the UI getting a little complicated. I would like to use some of the Twitter for Website tools - https://developer.twitter.com/en/docs/twitter-for-websites - to allow users to see embedded tweets and feeds and they search for and add new followers. Other than that, some of the auth stuff (tokens, etc) could be tricky at first but I’m not too worried.
+  
+  c. I will need to securely store oauth tokens. I also anticipate having users sign in to the app to begin with, meaning I will have to securely store user passwords. I don’t plan on dealing with any other sensitive data.
+  
+  d. The app allows users to add new Twitter users based on various criteria, like most commonly followed account(s) among accounts they already follow, users in their geographic area, etc. The idea is that they will be able to peruse users and user tweets using the Twitter for Website embedded tools before adding followers. All from the website!
+  
+  e. User creates account/logs-in to site, user enters search criteria, user sees result(s), user follows account, rinse/wash/repeat.
+  
+  f. I’m not sure I understand the question ‘stretch goals.’
