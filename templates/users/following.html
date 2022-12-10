@@ -1,0 +1,28 @@
+{% extends 'users/detail.html' %}
+{% block user_details %}
+  <div class="col-sm-9">
+    <div class="row">
+
+      {% for acct in accts %}
+
+      <div class="col-lg-4 col-md-6 col-12">
+        <div class="card user-card">
+          <div class="card-inner">
+            <div class="card-contents">
+              <a href="{{ url_for('acct_show', user_id=acct.id) }}" class="card-link">
+                <p>{{ acct.handle }}</p>
+                <p>followed since {{ acct.followed_since }}</p>
+              </a>
+              <form method="POST" action="{{ url_for('stop_following', follow_id=acct.id) }}">
+                <button class="btn btn-primary">Unfollow</button>
+                </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% endfor %}
+
+    </div>
+  </div>
+{% endblock %}

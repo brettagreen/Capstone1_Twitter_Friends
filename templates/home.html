@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="row">
+
+    <aside class="col-md-4 col-lg-3 col-sm-12" id="home-aside">
+      <div class="card user-card">
+        <div>
+          <div class="image-wrapper">
+            <img src="{{ g.user.header_image_url }}" alt="" class="card-hero">
+          </div>
+          <a href="{{ url_for('users_show', user_id=g.user.id) }}" class="card-link">
+            <img src="{{ g.user.image_url }}"
+                 alt="Image for {{ g.user.username }}"
+                 class="card-image">
+            <p>@{{ g.user.username }}</p>
+          </a>
+          <ul class="user-stats nav nav-pills">
+
+            {% include 'snippets/user_numbers.html' %}
+
+          </ul>
+        </div>
+      </div>
+    </aside>
+
+    <div class="col-lg-6 col-md-8 col-sm-12">
+      <ul class="list-group" id="messages">
+        {% for message in messages %}
+
+        {% include 'snippets/show_messages.html' %}
+
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+{% endblock %}

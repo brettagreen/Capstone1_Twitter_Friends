@@ -1,0 +1,16 @@
+{% extends 'users/detail.html' %}
+
+{% block user_details %}
+  <div class="col-sm-9">
+    <div class="row">
+
+      {% for user in user.followers %}
+
+      {% include 'snippets/full_follow_unfollow.html' %}
+
+      {% endfor %}
+
+    </div>
+  </div>
+
+{% endblock %}

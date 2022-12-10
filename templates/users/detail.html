@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="row full-width">
+  <div class="container">
+    <div class="row justify-content-end">
+      <div class="col-9">
+        <ul class="user-stats nav nav-pills">
+          
+          <div class="ml-auto">
+            {% if g.user.id == user.id %}
+            <a href="{{ url_for('profile', user_id=user.id) }}" class="btn btn-outline-secondary">Edit Profile</a>
+            <form method="POST" action="{{ url_for('reset_password', user_id=user.id) }}" class="form-inline">
+              <button class="btn btn-outline-secondary">Reset Password</button>
+            </form>
+            <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}" class="form-inline">
+              <button class="btn btn-outline-danger ml-2">Delete Account</button>
+            </form>
+            {% endif %}
+
+          </div>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-3">
+    <h4 id="sidebar-username">{{ user.username }}</h4>
+    <p class="user-location"><span class="fa fa-map-marker"></span>{{ user.city }}, {{ user.state }}</p>
+  </div>
+
+  {% block user_details %}
+  {% endblock %}
+
+</div>
+
+{% endblock %}
