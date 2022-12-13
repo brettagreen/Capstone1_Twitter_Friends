@@ -1,7 +1,6 @@
 import os
 
 from flask import Flask, render_template, request, flash, redirect, session, g, url_for
-#from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 from forms import UserAddForm, LoginForm, UserProfileForm, PasswordResetForm
 from models import db, connect_db, User, Followed_Account
@@ -18,9 +17,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
-#app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
-#toolbar = DebugToolbarExtension(app)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "rapunzel's demise")
 
 connect_db(app)
 
@@ -138,23 +135,6 @@ def logout():
 
 #############################USER/ACCT RELATED#######################################
 
-@app.route('/users')
-def list_users():
-    """Page with listing of users.
-
-    Can take a 'q' param in querystring to search by that username.
-    """
-
-    search = request.args.get('q')
-
-    if not search:
-        users = User.query.all()
-    else:
-        users = User.query.filter(User.username.like(f"%{search}%")).all()
-
-    return render_template('users/index.html', users=users)
-
-
 @app.route('/users/<int:user_id>')
 @login_required
 def users_show(user_id):
@@ -172,7 +152,7 @@ def users_show(user_id):
 def reset_password(user_id):
     """Handle user password change form"""
 
-    if user_id != g.user.id and not g.user.admin:
+    if user_id != g.user.id:
         return render_template('401.html'), 401
     form = PasswordResetForm()
 
@@ -219,7 +199,7 @@ def stop_following(acct_id):
 def profile(user_id):
     """Update profile for current user."""
 
-    if user_id != g.user.id and not g.user.admin:
+    if user_id != g.user.id:
         return render_template('401.html'), 401
 
     user = User.query.get_or_404(user_id)
@@ -228,9 +208,8 @@ def profile(user_id):
     form = UserProfileForm(obj=user)
 
     if form.validate_on_submit():
-        if not g.user.admin:
-            user = User.authenticate(form.username.data,
-                                    form.password.data)
+        user = User.authenticate(form.username.data,
+                                form.password.data)
 
         if user:
             #data = {k: v for k, v in form.data.items() if k not in ("csrf_token", 'Password')}
@@ -259,11 +238,10 @@ def profile(user_id):
 def delete_user(user_id):
     """Delete user."""
 
-    if user_id != g.user.id and not g.user.admin:
+    if user_id != g.user.id:
         return render_template('401.html'), 401
 
-    if not g.user.admin:
-        do_logout()
+    do_logout()
 
     db.session.delete(User.query.get_or_404(user_id))
     db.session.commit()
