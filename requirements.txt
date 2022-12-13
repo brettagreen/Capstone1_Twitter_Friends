@@ -82,7 +82,7 @@ service-identity==18.1.0
 simplegeneric==0.8.1
 simplejson==3.16.0
 six==1.11.0
-sos==4.4
+sos==0.9.8.1
 SQLAlchemy==1.2.12
 ssh-import-id==5.10
 stack-data==0.3.0
