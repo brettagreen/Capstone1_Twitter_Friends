@@ -9,11 +9,16 @@ import enum
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 
-class AccountTypes(enum.intEnum):
-    PROXIMITY = "proximity"
-    MUTUALS = "mututals"
-    COMMON_FOLLOWING = "common_following"
-    OTHER = "other"
+def connect_db(app):
+    """Connect to database."""
+    db.app = app
+    db.init_app(app)
+
+class AccountTypes(enum.IntEnum):
+    PROXIMITY = 1
+    MUTUALS = 2
+    COMMON_FOLLOWING = 3
+    OTHER = 4
 
 
 class Followed_Account(db.Model):
@@ -143,7 +148,7 @@ class User(db.Model):
         return user
 
     @classmethod
-    def authenticate(cls, username, password):
+    def authenticate_to_site(cls, username, password):
         """Find user with `username` and `password`.
 
         This is a class method (call it on the class, not an individual user.)

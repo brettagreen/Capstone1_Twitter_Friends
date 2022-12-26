@@ -5,8 +5,10 @@ from sqlalchemy.exc import IntegrityError
 from forms import UserAddForm, LoginForm, UserProfileForm, PasswordResetForm
 from models import db, connect_db, User, Followed_Account
 from functools import wraps
+import jsonpickle, tweepy, requests, private
 
 CURR_USER_KEY = "curr_user"
+oauth1_user_handler = None
 
 app = Flask(__name__)
 
@@ -96,7 +98,7 @@ def signup():
 
         do_login(user)
 
-        return redirect(url_for('homepage'))
+        return redirect(url_for('auth_request'))
 
     else:
         return render_template('users/signup.html', form=form)
@@ -115,7 +117,7 @@ def login():
         if user:
             do_login(user)
             flash(f"Hello, {user.username}!", "success")
-            return redirect(url_for('homepage'))
+            return redirect(url_for('auth_request'))
 
         flash("Invalid credentials.", 'danger')
 
@@ -263,3 +265,97 @@ def homepage():
         return render_template('home.html')
     else:
         return render_template('home-anon.html')
+
+@app.route('/request_auth_token', methods=['GET'])
+def request_token():
+    """include_entities = "true"
+    oauth_nonce = ''.join(random.choice(string.ascii_lowercase + string.ascii_uppercase + string.digits) for _ in range(42))
+    oauth_consumer_key = 'LEvKT3XOMifnch9J2qZ4jpokg'
+    oauth_signature_method = 'HMAC-SHA1'
+    oauth_version = "1.0"
+    oauth_token = "1247739711512358913-Mv3SrBIeu1AIrQhC1hOLjSdOsn8VHg"
+    oauth_timestamp = str(int(time.time()))
+
+    #signature_url = "https://api.twitter.com/1.1/statuses/update.json"
+    request_token_url = f"https://api.twitter.com/oauth/request_token"
+
+    auth_params = f"include_entities={include_entities}&oauth_consumer_key={oauth_consumer_key}&" \
+            f"oauth_nonce={oauth_nonce}&oauth_signature_method={oauth_signature_method}&" \
+            f"oauth_timestamp={oauth_timestamp}&oauth_token={oauth_token}&oauth_version={oauth_version}"
+
+    base_signature = f"POST&https%3A%2F%2Fapi.twitter.com%2F1.1%2Fstatuses%2Fupdate.json&" + quote(auth_params, safe="")
+    print(base_signature)
+
+    key = bytes(private.SIGNING_KEY, encoding='utf-8')
+    raw = bytes(base_signature, encoding='utf-8')
+
+    hashed = hmac.new(key, raw, sha1)
+    oauth_signature = quote(base64.b64encode(hashed.digest()), safe="")
+
+    header = {'Authorization':f'OAuth oauth_consumer_key="{oauth_consumer_key}", oauth_nonce="{oauth_nonce}", ' \
+        f'oauth_signature="{oauth_signature}", oauth_signature_method="{oauth_signature_method}", ' \
+        f'oauth_timestamp="{oauth_timestamp}", oauth_version="{oauth_version}"'}
+
+    resp = requests.post(
+                request_token_url,
+                params={"oauth_callback": f'https%3A%2F%2F97fc-107-204-176-106.ngrok.io%2Fauthorize'},                
+                headers=header
+            )"""
+
+    oauth1_user_handler = tweepy.OAuth1UserHandler(private.API_KEY, private.API_KEY_SECRET,
+            callback="https://97fc-107-204-176-106.ngrok.io/authorize")
+
+    resp = oauth1_user_handler.get_authorization_url(signin_with_twitter=True)
+
+    session['oauth_handler'] = jsonpickle.encode(oauth1_user_handler)
+
+    return redirect(resp)
+
+@app.route('/authorize')
+def authorize():
+    print("################STEPII####################")
+    
+    oauth1_user_handler = jsonpickle.decode(session['oauth_handler'])
+
+    oauth_verifier = request.args.get("oauth_verifier")
+
+    request_token = oauth1_user_handler.request_token["oauth_token"]
+    request_secret = oauth1_user_handler.request_token["oauth_token_secret"]
+
+    access_token, access_token_secret = (oauth1_user_handler.get_access_token(oauth_verifier))
+    
+    client = tweepy.Client(
+    consumer_key=private.API_KEY,
+    consumer_secret=private.API_KEY_SECRET,
+    access_token=access_token,
+    access_token_secret=access_token_secret)
+
+    session['client'] = jsonpickle.encode(client)
+
+    return redirect(url_for('homepage'))
+
+@app.route('/get_followers')
+def get_followers():
+    client = jsonpickle.decode(session['client'])
+
+    resp = client.get_me()
+    id = resp.data.id
+
+    resp = client.get_users_followers(id, user_auth=True)
+    followers = []
+    for user in resp.data:
+        followers.append(user.id)
+
+    following = []
+
+    for id in followers:
+        resp = client.get_users_following(id, user_auth=True)
+        if resp.data is not None:
+            for user in resp.data:
+                following.append((id, user.username))
+
+    list = [acct for acct in following if following.count(acct[0]) > 1]
+    print('THE LIST HAS ARRIVED')
+    print(list)
+
+    return('success')

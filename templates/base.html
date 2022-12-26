@@ -26,16 +26,7 @@
       </a>
     </div>
     <ul class="nav navbar-nav navbar-right">
-      {% if request.endpoint != None %}
-      <li>
-        <form class="navbar-form navbar-right" action="{{ url_for('list_users') }}">
-          <input name="q" class="form-control" placeholder="Search Warbler" id="search">
-          <button class="btn btn-default">
-            <span class="fa fa-search"></span>
-          </button>
-        </form>
-      </li>
-      {% endif %}
+
       {% if not g.user %}
       <li><a href="{{ url_for('signup') }}">Sign up</a></li>
       <li><a href="{{ url_for('login') }}">Log in</a></li>
